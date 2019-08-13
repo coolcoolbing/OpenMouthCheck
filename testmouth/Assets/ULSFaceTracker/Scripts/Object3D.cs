@@ -15,6 +15,8 @@ class Object3D : MonoBehaviour
 	public List<GameObject> _marker2d = new List<GameObject>();   //一个干什么的数组
     public float isOpenMouthDistanceMin = 0.6f;
     public float isOpenMouthDistanceMax = 0.9f;
+
+    public float isCloseEyeDistanceMin=0.2f;
     bool drawMarkers = false;   //信号量
 #endif
 
@@ -203,6 +205,8 @@ class Object3D : MonoBehaviour
         if (isOnTracking)
         {
             isOpenMouth();
+            isCloseLeftEye();
+            isCloseRightEye();
             if (isMouseOpenCounter > isMouseOpenJudger)
             {
                 isMouseOpen = true;
@@ -218,8 +222,9 @@ class Object3D : MonoBehaviour
             isMouseOpen = false;
         }
 	}
-
-    //计算是否张开了嘴巴
+    /// <summary>
+    /// 计算是否张开了嘴巴
+    /// </summary>
     void isOpenMouth()
     {
         //Debug.Log("28:" + _marker2d[28].transform.localPosition.x);
@@ -255,8 +260,74 @@ class Object3D : MonoBehaviour
             logInf[5].text = "close mouth";
         }
     }
+    /// <summary>
+    /// 计算是否闭上了左边的眼睛
+    /// </summary>
+    void isCloseLeftEye()
+    {
+        //归一化公式计算是否闭眼
 
-	bool frontal = true;
+        double m1 = (double)Mathf.Abs(_marker2d[19].transform.localPosition.y - _marker2d[21].transform.localPosition.y);
+        //logInf[7].text = m1.ToString();
+        double m2 = (double)Mathf.Abs(_marker2d[18].transform.localPosition.x - _marker2d[20].transform.localPosition.x);
+        //logInf[6].text = m2.ToString();
+
+        double n1 = (double)(m1 / m2);
+
+        /*
+        logInf[0].text = n1.ToString() + " is open " + isMouseOpen.ToString();
+        logInf[1].text = _marker2d[21].transform.localPosition.y.ToString();
+        logInf[2].text = _marker2d[19].transform.localPosition.y.ToString();
+        logInf[3].text = _marker2d[18].transform.localPosition.x.ToString();
+        logInf[4].text = _marker2d[20].transform.localPosition.x.ToString();
+        */
+
+        if ( n1 < isCloseEyeDistanceMin)
+        {
+            Debug.Log("close eye");
+            isMouseOpenCounter++;
+            logInf[8].text = "close eye";
+        }
+        else
+        {
+            isMouseOpenCounter -= 2;
+            if (isMouseOpenCounter < 0)
+                isMouseOpenCounter = 0;
+            logInf[8].text = "open eye";
+        }
+    }
+
+    /// <summary>
+    /// 计算是否闭上了右边的眼睛
+    /// </summary>
+    void isCloseRightEye()
+    {
+        //归一化公式计算是否闭眼
+
+        double m1 = (double)Mathf.Abs(_marker2d[15].transform.localPosition.y - _marker2d[17].transform.localPosition.y);
+        //logInf[7].text = m1.ToString();
+        double m2 = (double)Mathf.Abs(_marker2d[14].transform.localPosition.x - _marker2d[16].transform.localPosition.x);
+        //logInf[6].text = m2.ToString();
+
+        double n1 = (double)(m1 / m2);
+
+        
+        if (n1 < isCloseEyeDistanceMin)
+        {
+            Debug.Log("close eye");
+            isMouseOpenCounter++;
+            logInf[9].text = "close eye";
+        }
+        else
+        {
+            isMouseOpenCounter -= 2;
+            if (isMouseOpenCounter < 0)
+                isMouseOpenCounter = 0;
+            logInf[9].text = "open eye";
+        }
+    }
+
+    bool frontal = true;
 
 	void OnGUI() {
 #if DRAW_MARKERS
